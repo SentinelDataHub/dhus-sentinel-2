@@ -59,6 +59,9 @@ public class Sentinel2Utils
       // Does nothing
    }
 
+   /* TODO This method is only used by methods called by
+      src/test/java/fr/gael/drb/cortex/topic/sentinel2/Sentinel2UtilsTest.java !!!
+      This method should be removed */
    /**
     * Coordinates conversion. The template string of coordinates is:
     * <p>
@@ -112,6 +115,9 @@ public class Sentinel2Utils
       return coords;
    }
 
+   /* TODO This method is only used by methods called by
+      src/test/java/fr/gael/drb/cortex/topic/sentinel2/Sentinel2UtilsTest.java !!!
+      This method should be removed */
    /**
     * Convertion of Sentinel-2 footprint product coordinates (XYZ format) to <a
     * href="http://en.wikipedia.org/wiki/Geography_Markup_Language">Geography
@@ -147,6 +153,9 @@ public class Sentinel2Utils
       return result;
    }
 
+   /* TODO This method is only used by methods called by
+      src/test/java/fr/gael/drb/cortex/topic/sentinel2/Sentinel2UtilsTest.java !!!
+      This method should be removed */
    /**
     * Convertion of Sentinel-2 footprint product coordinates (XYZ format) to <a
     * href="http://en.wikipedia.org/wiki/JTS_Topology_Suite">Java Topology
@@ -294,6 +303,9 @@ public class Sentinel2Utils
       return JTSPoints;
    }
 
+   /* TODO This method is only used by methods called by
+      src/test/java/fr/gael/drb/cortex/topic/sentinel2/Sentinel2UtilsTest.java !!!
+      This method should be removed */
    /**
     * Generate end position from start position.
     *
@@ -323,6 +335,9 @@ public class Sentinel2Utils
       return result;
    }
 
+   /* TODO This method is only used by methods called by
+      src/test/java/fr/gael/drb/cortex/topic/sentinel2/Sentinel2UtilsTest.java !!!
+      This method should be removed */
    /**
     * Get satellite name from product name
     *
@@ -369,6 +384,9 @@ public class Sentinel2Utils
       return result;
    }
 
+   /* TODO This method is only used by methods called by
+      src/test/java/fr/gael/drb/cortex/topic/sentinel2/Sentinel2UtilsTest.java !!!
+      This method should be removed */
    /**
     * Get Absolute orbit from Datatake file name
     *
@@ -405,6 +423,9 @@ public class Sentinel2Utils
       return result;
    }
 
+   /* TODO This method is only used by methods called by
+      src/test/java/fr/gael/drb/cortex/topic/sentinel2/Sentinel2UtilsTest.java !!!
+      This method should be removed */
    /**
     * Get dateTime string (with template: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" ) from
     * formatted time string in product file name

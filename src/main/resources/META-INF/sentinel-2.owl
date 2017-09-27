@@ -328,7 +328,7 @@
                else
                   data($child/@size), $base
          };
-         
+
          <!-- ============================================================== -->
          <!-- VARIABLES                                                      -->
          <!-- ============================================================== -->
@@ -357,10 +357,10 @@
 
          let $Value_End_Position :=
             fn:data($Node_Product_Info/PRODUCT_STOP_TIME)
-         
+
          return
          (
-         
+
          <!-- ============================================================== -->
          <!-- EXTRACTIONS                                                    -->
          <!-- ============================================================== -->
@@ -568,9 +568,12 @@
             name="NSSDC identifier"
             type="text/plain">
             {
-               fn:data(manifest.safe/XFDU/metadataSection/
-                  metadataObject[@ID="platform"]/metadataWrap/
-                  xmlData/platform/nssdcIdentifier)
+               if (fn:matches(name(), "S2A.*"))
+               then "2015-028A"
+               else
+                  if (fn:matches(name(), "S2B.*"))
+                  then "2017-013A"
+                  else "UNKNOWN"
             }
          </metadata>,
 
@@ -635,7 +638,12 @@
              name="Sensor quality"
              type="text/plain">
              {
-                fn:data($Node_Quality_Inspections/SENSOR_QUALITY_FLAG)
+                if ($Node_Quality_Inspections/SENSOR_QUALITY_FLAG)
+                then fn:data($Node_Quality_Inspections/SENSOR_QUALITY_FLAG)
+                else
+                   if ($Node_Quality_Inspections/quality_check[@checkType="SENSOR_QUALITY"])
+                   then fn:data($Node_Quality_Inspections/quality_check[@checkType="SENSOR_QUALITY"])
+                   else "UNKNOWN"
              }
           </metadata>,
 
@@ -645,7 +653,12 @@
              name="Geometric quality"
              type="text/plain">
              {
-                fn:data($Node_Quality_Inspections/GEOMETRIC_QUALITY_FLAG)
+                if ($Node_Quality_Inspections/GEOMETRIC_QUALITY_FLAG)
+                then fn:data($Node_Quality_Inspections/GEOMETRIC_QUALITY_FLAG)
+                else
+                   if ($Node_Quality_Inspections/quality_check[@checkType="GEOMETRIC_QUALITY"])
+                   then fn:data($Node_Quality_Inspections/quality_check[@checkType="GEOMETRIC_QUALITY"])
+                   else "UNKNOWN"
              }
           </metadata>,
 
@@ -655,7 +668,12 @@
              name="General quality"
              type="text/plain">
              {
-                fn:data($Node_Quality_Inspections/GENERAL_QUALITY_FLAG)
+                if ($Node_Quality_Inspections/GENERAL_QUALITY_FLAG)
+                then fn:data($Node_Quality_Inspections/GENERAL_QUALITY_FLAG)
+                else
+                   if ($Node_Quality_Inspections/quality_check[@checkType="GENERAL_QUALITY"])
+                   then fn:data($Node_Quality_Inspections/quality_check[@checkType="GENERAL_QUALITY"])
+                   else "UNKNOWN"
              }
           </metadata>,
 
@@ -665,7 +683,12 @@
              name="Format correctness"
              type="text/plain">
              {
-                fn:data($Node_Quality_Inspections/FORMAT_CORRECTNESS_FLAG)
+                if ($Node_Quality_Inspections/FORMAT_CORRECTNESS_FLAG)
+                then fn:data($Node_Quality_Inspections/FORMAT_CORRECTNESS_FLAG)
+                else
+                   if ($Node_Quality_Inspections/quality_check[@checkType="FORMAT_CORRECTNESS"])
+                   then fn:data($Node_Quality_Inspections/quality_check[@checkType="FORMAT_CORRECTNESS"])
+                   else "UNKNOWN"
              }
           </metadata>,
 
@@ -675,7 +698,12 @@
              name="Radiometric quality"
              type="text/plain">
              {
-                fn:data($Node_Quality_Inspections/RADIOMETRIC_QUALITY_FLAG)
+                if ($Node_Quality_Inspections/RADIOMETRIC_QUALITY_FLAG)
+                then fn:data($Node_Quality_Inspections/RADIOMETRIC_QUALITY_FLAG)
+                else
+                   if ($Node_Quality_Inspections/quality_check[@checkType="RADIOMETRIC_QUALITY"])
+                   then fn:data($Node_Quality_Inspections/quality_check[@checkType="RADIOMETRIC_QUALITY"])
+                   else "UNKNOWN"
              }
          </metadata>
       )
@@ -710,9 +738,9 @@
             <solrField name="hv_order_tileid"
                        type="string"/>
          </metadataType>
-         
+
       </dhus:metadataTypes>
-      
+
       <dhus:metadataExtractor  rdf:parseType="Literal">
       <![CDATA[
          declare namespace
@@ -731,7 +759,7 @@
 
          let $Value_FootprintL1C :=
             fn:data($Node_Level-1C_User_Product/Geometric_Info/
-            Product_Footprint/Product_Footprint/Global_Footprint/EXT_POS_LIST) 
+            Product_Footprint/Product_Footprint/Global_Footprint/EXT_POS_LIST)
 
          let $Value_TileID:=
             let $granule:= GRANULE/*[1]
@@ -828,7 +856,7 @@
                fn:data($Node_Datatake/DATATAKE_SENSING_START)
             }
          </metadata>,
-         
+
          <!-- TILE IDENTIFIER
               Extract tile ID (MGRS encoded). If more than one tile is present
               in the user product, use the first one. -->
@@ -919,7 +947,7 @@
             </img:script>
          </img:operator>
       </img:rendering>
-      
+
    </rdf:Description>
 
    <!-- USER PRODUCT L2A  -->
@@ -957,8 +985,6 @@
         </metadataType>
 
         <!-- VEGETATION PERCENTAGE -->
-        <!--<metadataType id="vegetationpercentage"-->
-        <!-- MM changed to lowerCamelCase -->
         <metadataType id="vegetationPercentage"
                       name="Vegetation percentage"
                       contentType="text/plain"
@@ -967,20 +993,16 @@
                       type="double"/>
         </metadataType>
 
-        <!-- BARE SOILS PERCENTAGE -->
-        <!--<metadataType id="baresoilpercentage"-->
-        <!-- MM changed to lowerCamelCase -->
-        <metadataType id="bareSoilPercentage"
-                      name="Bare soils percentage"
+        <!-- NOT VEGETATED PERCENTAGE -->
+        <metadataType id="notVegetatedPercentage"
+                      name="Not vegetated percentage"
                       contentType="text/plain"
                       category="product">
-           <solrField name="baresoilpercentage"
+           <solrField name="notvegetatedpercentage"
                       type="double"/>
         </metadataType>
 
         <!-- WATER PERCENTAGE -->
-        <!--<metadataType id="waterpercentage"-->
-        <!-- MM changed to lowerCamelCase -->
         <metadataType id="waterPercentage"
                       name="Water percentage"
                       contentType="text/plain"
@@ -989,20 +1011,16 @@
                       type="double"/>
         </metadataType>
 
-        <!-- LOW PROBA CLOUDS PERCENTAGE -->
-        <!--<metadataType id="lowprobacloudspercentage"-->
-        <!-- MM changed to lowerCamelCase -->
-        <metadataType id="lowProbaCloudsPercentage"
-                      name="Low proba clouds percentage"
+        <!-- UNCLASSIFIED PERCENTAGE -->
+        <metadataType id="unclassifiedPercentage"
+                      name="Unclassified percentage"
                       contentType="text/plain"
                       category="product">
-           <solrField name="lowprobacloudspercentage"
+           <solrField name="unclassifiedpercentage"
                       type="double"/>
         </metadataType>
 
         <!-- MEDIUM PROBA CLOUDS PERCENTAGE -->
-        <!--<metadataType id="mediumprobacloudspercentage"-->
-        <!-- MM changed to lowerCamelCase -->
         <metadataType id="mediumProbaCloudsPercentage"
                       name="Medium proba clouds percentage"
                       contentType="text/plain"
@@ -1012,8 +1030,6 @@
         </metadataType>
 
         <!-- HIGH PROBA CLOUDS PERCENTAGE -->
-        <!--<metadataType id="highprobacloudspercentage"-->
-        <!-- MM changed to lowerCamelCase -->
         <metadataType id="highProbaCloudsPercentage"
                       name="High proba clouds percentage"
                       contentType="text/plain"
@@ -1033,8 +1049,6 @@
         <!-- Declared in User products -->
 
         <!-- SNOW ICE PERCENTAGE -->
-        <!--<metadataType id="snowicepercentage"-->
-        <!-- MM changed to lowerCamelCase -->
         <metadataType id="snowIcePercentage"
                       name="Snow ice percentage"
                       contentType="text/plain"
@@ -1259,14 +1273,15 @@
            }
         </metadata>,
 
-        <!-- BARE SOILS PERCENTAGE -->
+        <!-- NOT VEGETATED PERCENTAGE -->
         <metadata
-           queryable="baresoilpercentage"
+           queryable="notvegetatedpercentage"
            category="product"
-           name="Bare soils percentage"
+           name="Not vegetated percentage"
            type="text/plain">
            {
-             fn:data($Node_Image_Content_QI/BARE_SOILS_PERCENTAGE)
+             fn:data($Node_Image_Content_QI/NOT_VEGETATED_PERCENTAGE)
+
            }
         </metadata>,
 
@@ -1281,14 +1296,14 @@
            }
         </metadata>,
 
-        <!-- LOW PROBA CLOUDS PERCENTAGE -->
+        <!-- UNCLASSIFIED PERCENTAGE -->
         <metadata
-           queryable="lowprobacloudspercentage"
+           queryable="unclassifiedpercentage"
            category="product"
-           name="Low proba clouds percentage"
+           name="Unclassified percentage"
            type="text/plain">
            {
-             fn:data($Node_Image_Content_QI/LOW_PROBA_CLOUDS_PERCENTAGE)
+             fn:data($Node_Image_Content_QI/UNCLASSIFIED_PERCENTAGE)
            }
         </metadata>,
 
@@ -1452,9 +1467,21 @@
          declare namespace
             utils="java:fr.gael.drb.cortex.topic.sentinel2.Sentinel2Utils";
 
-         declare variable $footprintL1B := fn:data(*[matches (name(),
+         <!-- ============================================================== -->
+         <!-- VARIABLES                                                      -->
+         <!-- ============================================================== -->
+
+         let $Value_FootprintL1B :=
+            fn:data(*[matches (name(),
             "\w{8}_MTD_SAFL1B_.*\.xml")]/Level-1B_User_Product/Geometric_Info/
-            Product_Footprint/Product_Footprint/Global_Footprint/EXT_POS_LIST);
+            Product_Footprint/Product_Footprint/Global_Footprint/EXT_POS_LIST)
+
+         return
+         (
+
+         <!-- ============================================================== -->
+         <!-- EXTRACTIONS                                                    -->
+         <!-- ============================================================== -->
 
          <!-- SENSOR MODE -->
          <metadata
@@ -1483,7 +1510,7 @@
                   <gml:LinearRing>
                      <gml:coordinates>
                      {
-                        utils:xYPoints2GML($footprintL1B)
+                        utils:xYPoints2GML($Value_FootprintL1B)
                      }
                      </gml:coordinates>
                   </gml:LinearRing>
@@ -1498,7 +1525,7 @@
             name="JTS footprint"
             type="application/jts">
             {
-               concat("POLYGON ((",utils:xYPoints2JTS($footprintL1B),"))")
+               concat("POLYGON ((",utils:xYPoints2JTS($Value_FootprintL1B),"))")
             }
          </metadata>
 
@@ -1524,7 +1551,7 @@
                (: Commented since quality of the PNG is not sure
                   This will be uncommented when the PNG will be well processed
                let $png := *[fn:matches(fn:name(),".*\.png")]
-               let $data := if (fn:exists ($png)) then $png else 
+               let $data := if (fn:exists ($png)) then $png else
                   GRANULE/*/IMG_DATA/*[fn:matches(fn:name(),".*B(01|09|10)\.jp2")]
                :)
                let $data :=
@@ -1563,14 +1590,14 @@
                   pb.addSource(iterator.next());
 
                img = JAI.create("bandmerge",pb);
-        
+
                pb = new ParameterBlock();
                pb.addSource(img);
                pb.add(DataBuffer.TYPE_BYTE);
                img = JAI.create("Format", pb);
-        
+
                return JAI.create("bandSelect", img, new int[] {2, 1, 0});
-               
+
             /* 1B implementation is not efficient.
                pb = new ParameterBlock();
                pb.addSource(fr.gael.drb.cortex.topic.sentinel2.Sentinel2Image.process1BImage(source, 1, 10, 10));
