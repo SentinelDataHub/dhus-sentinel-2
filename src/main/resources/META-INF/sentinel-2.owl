@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <!--
   Data HUb Service (DHuS) - For Space data distribution.
-  Copyright (C) 2013,2014,2015,2016 European Space Agency (ESA)
-  Copyright (C) 2013,2014,2015,2016 GAEL Systems
-  Copyright (C) 2013,2014,2015,2016 Serco Spa
+  Copyright (C) 2013-2017 European Space Agency (ESA)
+  Copyright (C) 2013-2017 GAEL Systems
+  Copyright (C) 2013-2017 Serco Spa
 
   This file is part of DHuS software sources.
 
@@ -104,7 +104,7 @@
          <metadataType id="filename"
                        name="Filename"
                        contentType="text/plain"
-                       category="">
+                       category="summary">
             <solrField name="filename"
                        type="string"
                        required="true"/>
@@ -439,7 +439,7 @@
          <!-- FILENAME -->
          <metadata
             queryable="filename"
-            category=""
+            category="summary"
             name="Filename"
             type="text/plain">
             {
@@ -526,14 +526,14 @@
             name="Cloud cover percentage"
             type="text/plain">
             {
-              let $Var_CLOUD_COVERAGE_PERCENTAGE :=
+              let $Var_Cloud_Coverage_Assessment :=
                  $File_Metadata_File/*[matches(name(),".*_User_Product")]/
                  *[matches(name(), ".*Quality_Indicators_Info")]/
-                 Image_Content_QI/CLOUD_COVERAGE_PERCENTAGE
+                 Cloud_Coverage_Assessment
               return
-                 if ($Var_CLOUD_COVERAGE_PERCENTAGE)
+                 if ($Var_Cloud_Coverage_Assessment)
                  then
-                    fn:data($Var_CLOUD_COVERAGE_PERCENTAGE)
+                    fn:data($Var_Cloud_Coverage_Assessment)
                  else
                     fn:avg(local:cloudcoveragesequence())
             }
@@ -712,8 +712,6 @@
    </rdf:Description>
 
    <!-- USER PRODUCT L1C -->
-   <!-- Back to previous ID for compatibility
-   <rdf:Description rdf:about="&s2;userProductLevel1c">-->
    <rdf:Description rdf:about="&s2;userLevel1CProduct">
       <dhus:metadataTypes rdf:parseType="Literal">
 
@@ -725,6 +723,14 @@
                        type="tdate"/>
          </metadataType>
 
+         <metadataType id="level1CPdiIdentifier"
+                       name="Level-1C PDI Identifier"
+                       contentType="text/plain"
+                       category="product">
+            <solrField name="level1cpdiidentifier"
+                       type="string"/>
+         </metadataType>
+
          <metadataType id="tileid"
                        name="Tile Identifier"
                        contentType="text/plain"
@@ -732,9 +738,11 @@
             <solrField name="tileid"
                        type="string"/>
          </metadataType>
+
          <metadataType id="hv_order_tileid"
                        name="Tile Identifier horizontal order"
-                       contentType="text/plain">
+                       contentType="text/plain"
+                       category="product">
             <solrField name="hv_order_tileid"
                        type="string"/>
          </metadataType>
@@ -857,6 +865,21 @@
             }
          </metadata>,
 
+         <!-- LEVEL-1C PDI IDENTIFIER -->
+         <metadata
+            queryable="level1cpdiidentifier"
+            category="product"
+            name="Level-1C PDI Identifier"
+            type="text/plain">
+            {
+               let $granuleCount := fn:count(GRANULE/*)
+               return
+                  if ($granuleCount = 1)
+                  then fn:data(GRANULE/*/MTD_TL.xml/Level-1C_Tile_ID/General_Info/TILE_ID)
+                  else ()
+            }
+         </metadata>,
+
          <!-- TILE IDENTIFIER
               Extract tile ID (MGRS encoded). If more than one tile is present
               in the user product, use the first one. -->
@@ -874,6 +897,7 @@
               Tile Id to scambeled to order tiles horizontally -->
          <metadata
             queryable="hv_order_tileid"
+            category="product"
             name="Tile Identifier horizontal order"
             type="text/plain">
             {
@@ -951,10 +975,16 @@
    </rdf:Description>
 
    <!-- USER PRODUCT L2A  -->
-   <!-- Back to previous ID for compatibility
-   <rdf:Description rdf:about="&s2;userProductLevel2a">-->
    <rdf:Description rdf:about="&s2;userLevel2AProduct">
       <dhus:metadataTypes rdf:parseType="Literal">
+
+         <metadataType id="level1CPdiIdentifier"
+                       name="Level-1C PDI Identifier"
+                       contentType="text/plain"
+                       category="product">
+            <solrField name="level1cpdiidentifier"
+                       type="string"/>
+         </metadataType>
 
         <!-- NODATA PIXEL PERCENTAGE -->
         <metadataType id="noDataPixelPercentage"
@@ -1099,9 +1129,6 @@
      </dhus:metadataTypes>
   </rdf:Description>
 
-
-   <!-- Back to previous ID for compatibility
-   <rdf:Description rdf:about="&s2;userProductLevel2a">-->
    <rdf:Description rdf:about="&s2;userLevel2AProduct">
       <dhus:metadataExtractor  rdf:parseType="Literal">
       <![CDATA[
@@ -1132,8 +1159,12 @@
             Global_Footprint/EXT_POS_LIST)
 
          let $Node_Image_Content_QI :=
-            $Node_Level-2A_User_Product/L2A_Quality_Indicators_Info/
-            Image_Content_QI
+            if ($Node_Level-2A_User_Product/L2A_Quality_Indicators_Info)
+            then $Node_Level-2A_User_Product/L2A_Quality_Indicators_Info/Image_Content_QI
+            else
+               if ($Node_Level-2A_User_Product/Quality_Indicators_Info)
+               then $Node_Level-2A_User_Product/Quality_Indicators_Info/Image_Content_QI
+               else "UNKNOWN Node_Image_Content_QI"
 
          return
          (
@@ -1141,6 +1172,24 @@
          <!-- ============================================================== -->
          <!-- EXTRACTIONS                                                    -->
          <!-- ============================================================== -->
+
+         <!-- LEVEL-1C PDI IDENTIFIER -->
+         <metadata
+            queryable="level1cpdiidentifier"
+            category="product"
+            name="Level-1C PDI Identifier"
+            type="text/plain">
+            {
+               let $granuleCount := fn:count(GRANULE/*)
+               return
+                  if ($granuleCount = 1)
+                  then
+                     if (GRANULE/*/MTD_TL.xml/Level-2A_Tile_ID/General_Info/L1C_TILE_ID)
+                     then fn:data(GRANULE/*/MTD_TL.xml/Level-2A_Tile_ID/General_Info/L1C_TILE_ID)
+                     else ()
+                  else ()
+            }
+         </metadata>,
 
          <!-- SENSOR MODE -->
          <metadata
@@ -1413,16 +1462,30 @@
             };
             declare function local:listdata()
             {
-               (: Commented since quality of the PNG is not sure
-                  This will be uncommented when the PNG will be well processed
-               let $png := *[fn:matches(fn:name(),".*\.png")]
-               let $data := if (fn:exists ($png)) then $png else
-               let $data :=
-                  GRANULE/*/QI_DATA/*[fn:matches(fn:name(), ".*PVI.*[A-Z](?!_20m)\.jp2")]
-                  :)
+                        (: Commented since quality of the PNG is not sure
+                           This will be uncommented when the PNG will be well processed
+                        let $png := *[fn:matches(fn:name(),".*\.png")]
+                        let $data := if (fn:exists ($png)) then $png else
+                        let $data :=
+                           GRANULE/*/QI_DATA/*[fn:matches(fn:name(), ".*PVI.*[A-Z](?!_20m)\.jp2")]
+                        :)
 
+               (: Before L2A update
                let $data :=
                   GRANULE/*/QI_DATA/*[fn:matches(fn:name(), "(L2A.*PVI|.*PVI_L2A.*_20m)\.(?i)jp2")]
+               :)
+
+               (: NOW with specification S2-PDGS-MPC-L2A-PFS-V14.3_V1.1.docx :)
+               let $data :=
+                  if (GRANULE/*/QI_DATA/*[fn:matches(fn:name(), "(L2A.*PVI|.*PVI_L2A.*_20m)\.(?i)jp2")])
+                  then
+                     GRANULE/*/QI_DATA/*[fn:matches(fn:name(), "(L2A.*PVI|.*PVI_L2A.*_20m)\.(?i)jp2")]
+                  else
+                     if (GRANULE/*/QI_DATA/*[fn:matches(fn:name(), ".*PVI\.(?i)jp2")])
+                     then
+                        GRANULE/*/QI_DATA/*[fn:matches(fn:name(), ".*PVI\.(?i)jp2")]
+                     else ()
+
                for $node in $data
                return
                   local:checkPath(drb:path($node))
@@ -1456,10 +1519,7 @@
 
    </rdf:Description>
 
-
    <!-- USER PRODUCT L1B -->
-   <!-- Back to previous ID for compatibility
-   <rdf:Description rdf:about="&s2;userProductLevel1b">-->
    <rdf:Description rdf:about="&s2;userLevel1BProduct">
       <dhus:metadataExtractor  rdf:parseType="Literal">
       <![CDATA[
@@ -1528,7 +1588,7 @@
                concat("POLYGON ((",utils:xYPoints2JTS($Value_FootprintL1B),"))")
             }
          </metadata>
-
+         )
       ]]>
       </dhus:metadataExtractor>
 

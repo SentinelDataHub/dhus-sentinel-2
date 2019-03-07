@@ -56,8 +56,17 @@ public class Coordinates
    public static UTMCoord utmFromMgrs(String mgrs)
    {
       MGRSCoord coord = MGRSCoord.fromString(mgrs);
-      UTMCoord utm = UTMCoord.fromLatLon(coord.getLatitude(),
-         coord.getLongitude());
+      Angle longitude = coord.getLongitude();
+      // Check longitude
+      if (longitude.degrees > 180)
+      {
+         longitude = longitude.addDegrees (-360);
+      }
+      else if (longitude.degrees < -180)
+      {
+         longitude = longitude.addDegrees (360);
+      }
+      UTMCoord utm = UTMCoord.fromLatLon(coord.getLatitude(), longitude);
       return utm;
    }
    

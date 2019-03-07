@@ -61,7 +61,7 @@ public class Sentinel2Image
             J2KImageReaderSpi.class);
          registry.deregisterServiceProvider(spi);
       }
-      catch (Exception e)
+      catch (Throwable e)
       {
          // Cannot unregister default JP2K reader.
       }
