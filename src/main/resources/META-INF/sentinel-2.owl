@@ -48,10 +48,12 @@
    <rdf:Description rdf:about="&s2;userProduct">
       <dhus:metadataTypes rdf:parseType="Literal">
 
-         <metadataType id="generationTime"
-                       name="Generation time"
-                       contentType="text/plain"
+         <metadataType id="generationDate"
+                       name="Generation date"
+                       contentType="text/date+iso8601"
                        category="product">
+            <solrField name="generationdate"
+                       type="tdate"/>
          </metadataType>
 
          <metadataType id="format"
@@ -290,6 +292,22 @@
                        category="product">
          </metadataType>
 
+         <metadataType id="datastripIdentifier"
+                       name="Datastrip identifier"
+                       contentType="text/plain"
+                       category="product">
+            <solrField name="datastripidentifier"
+                       type="text_general"/>
+         </metadataType>
+
+         <metadataType id="granuleIdentifier"
+                       name="Granule identifier"
+                       contentType="text/plain"
+                       category="product">
+            <solrField name="granuleidentifier"
+                       type="text_general"/>
+         </metadataType>
+
       </dhus:metadataTypes>
    </rdf:Description>
 
@@ -342,6 +360,20 @@
 
          let $Node_Datatake := $Node_Product_Info/Datatake
 
+         let $Node_Granule_1 :=
+            if ($Node_Product_Info/*[matches (name(), ".*Product_Organisation")]/
+                Granule_List/Granule)
+            then
+               $Node_Product_Info/*[matches (name(), ".*Product_Organisation")]/
+               Granule_List[position() = 1]/Granule[position() = 1]
+            else
+               if ($Node_Product_Info/*[matches (name(), ".*Product_Organisation")]/
+                   Granule_List/Granules)
+               then
+                  $Node_Product_Info/*[matches (name(), ".*Product_Organisation")]/
+                  Granule_List[position() = 1]/Granules[position() = 1]
+               else ()
+
          let $Node_Technical_Quality_Assessment :=
             $File_Metadata_File/*[matches(name(),".*_User_Product")]/
             *[matches(name(), ".*Quality_Indicators_Info")]/
@@ -365,11 +397,12 @@
          <!-- EXTRACTIONS                                                    -->
          <!-- ============================================================== -->
 
-         <!-- GENERATION TIME -->
+         <!-- GENERATION DATE -->
          <metadata
+            queryable="generationdate"
             category="product"
-            name="Generation time"
-            type="text/plain">
+            name="Generation date"
+            type="text/date+iso8601">
             {
                fn:data($Node_Product_Info/GENERATION_TIME)
             }
@@ -705,6 +738,24 @@
                    then fn:data($Node_Quality_Inspections/quality_check[@checkType="RADIOMETRIC_QUALITY"])
                    else "UNKNOWN"
              }
+         </metadata>,
+
+         <!-- DATASTRIP IDENTIFIER -->
+         <metadata
+             category="product"
+             name="Datastrip identifier"
+             queryable="datastripidentifier"
+             type="text/plain">
+             { fn:data($Node_Granule_1/@datastripIdentifier) }
+         </metadata>,
+
+         <!-- GRANULE IDENTIFIER -->
+         <metadata
+             category="product"
+             name="Granule identifier"
+             queryable="granuleidentifier"
+             type="text/plain">
+             { fn:data($Node_Granule_1/@granuleIdentifier) }
          </metadata>
       )
       ]]>
@@ -875,7 +926,8 @@
                let $granuleCount := fn:count(GRANULE/*)
                return
                   if ($granuleCount = 1)
-                  then fn:data(GRANULE/*/MTD_TL.xml/Level-1C_Tile_ID/General_Info/TILE_ID)
+                  then fn:data(GRANULE/*/*[matches (name(), "(MTD_TL.xml|S2.*L1C.*.xml)")]/
+                               Level-1C_Tile_ID/General_Info/TILE_ID)
                   else ()
             }
          </metadata>,
@@ -1126,6 +1178,24 @@
                       type="int"/>
         </metadataType>
 
+        <!-- AZIMUTH ANGLE -->
+        <metadataType id="illuminationAzimuthAngle"
+                      name="Illumination Azimuth Angle"
+                      contentType="text/plain"
+                      category="product">
+           <solrField name="illuminationazimuthangle"
+                      type="double"/>
+        </metadataType>
+
+        <!-- ZENITH ANGLE -->
+        <metadataType id="illuminationZenithAngle"
+                      name="Illumination Zenith Angle"
+                      contentType="text/plain"
+                      category="product">
+           <solrField name="illuminationzenithangle"
+                      type="double"/>
+        </metadataType>
+
      </dhus:metadataTypes>
   </rdf:Description>
 
@@ -1165,6 +1235,9 @@
                if ($Node_Level-2A_User_Product/Quality_Indicators_Info)
                then $Node_Level-2A_User_Product/Quality_Indicators_Info/Image_Content_QI
                else "UNKNOWN Node_Image_Content_QI"
+
+         let $File_Metadata_Tile_File :=
+            GRANULE/*[matches (name(), ".*")]/MTD_TL.xml
 
          return
          (
@@ -1268,6 +1341,30 @@
                  if ($Flag_SAFE_Format = "COMPACT")
                  then xs:integer(fn:substring(name(), 35, 3))
                   else ""
+            }
+         </metadata>,
+
+         <!-- AZIMUTH ANGLE -->
+         <metadata
+            queryable="illuminationazimuthangle"
+            category="product"
+            name="Illumination Azimuth Angle"
+            type="text/plain">
+            {
+               fn:data($File_Metadata_Tile_File/Level-2A_Tile_ID/Geometric_Info/
+                       Tile_Angles/Mean_Sun_Angle/AZIMUTH_ANGLE)
+            }
+         </metadata>,
+
+         <!-- ZENITH ANGLE -->
+         <metadata
+            queryable="illuminationzenithangle"
+            category="product"
+            name="Illumination Zenith Angle"
+            type="text/plain">
+            {
+               fn:data($File_Metadata_Tile_File/Level-2A_Tile_ID/Geometric_Info/
+                       Tile_Angles/Mean_Sun_Angle/ZENITH_ANGLE)
             }
          </metadata>,
 
